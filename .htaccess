@@ -5,3 +5,7 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond $1 !^(index\.php|assets|images|css|docs|js|system)
 RewriteRule ^(.*)$ /toonflix/index.php?/$1 [L]
+
+Header set Access-Control-Allow-Origin "*"
+Header set Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT, DELETE"
+Header set Access-Control-Allow-Headers "Content-Type, Authorization"
