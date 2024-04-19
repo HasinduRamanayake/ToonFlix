@@ -1,35 +1,23 @@
 {
-	"description": "The CodeIgniter framework",
-	"name": "codeigniter/framework",
-	"type": "project",
-	"homepage": "https://codeigniter.com",
-	"license": "MIT",
-	"support": {
-		"forum": "http://forum.codeigniter.com/",
-		"wiki": "https://github.com/bcit-ci/CodeIgniter/wiki",
-		"slack": "https://codeigniterchat.slack.com",
-		"source": "https://github.com/bcit-ci/CodeIgniter"
-	},
-	"require": {
-		"php": ">=5.3.7"
-	},
-	"suggest": {
-		"paragonie/random_compat": "Provides better randomness in PHP 5.x"
-	},
-	"scripts": {
-		"test:coverage": [
-			"@putenv XDEBUG_MODE=coverage",
-			"phpunit --color=always --coverage-text --configuration tests/travis/sqlite.phpunit.xml"
-		],
-		"post-install-cmd": [
-			"sed -i s/name{0}/name[0]/ vendor/mikey179/vfsstream/src/main/php/org/bovigo/vfs/vfsStream.php"
-		],
-		"post-update-cmd": [
-			"sed -i s/name{0}/name[0]/ vendor/mikey179/vfsstream/src/main/php/org/bovigo/vfs/vfsStream.php"
-		]
-	},
-	"require-dev": {
-		"mikey179/vfsstream": "1.6.*",
-		"phpunit/phpunit": "4.* || 5.* || 9.*"
-	}
+    "name": "user/toonflix",
+    "description": "Welcome to ToonFlix, a unique social networking platform dedicated to cartoon enthusiasts worldwide. Leveraging the power of CodeIgniter 3 and Backbone.js, ToonFlix offers an interactive and user-friendly environment for sharing, discussing, and enjoying cartoons of all genres.",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Entity\\": "application/models/Entity/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Hasindu Ramanayake",
+            "email": "86105866+HasinduRamanayake@users.noreply.github.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "doctrine/orm": "^2.18",
+        "symfony/cache": "^6.0",
+        "doctrine/annotations": "^2.0"
+    }
 }

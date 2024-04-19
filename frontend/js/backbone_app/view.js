@@ -1,31 +1,58 @@
-var LoginView = Backbone.View.extend({
-    el: '#login-form',
-
+var AuthView = Backbone.View.extend({
     events: {
-        'submit': 'submitForm'
+        'submit #login-form': 'login',
+        'submit #signup-form': 'signUp'
     },
 
-    submitForm: function(e) {
+    login: function(e) {
         e.preventDefault();
-        var loginDetails = {
+
+        var userData = {
             username: this.$('#username').val(),
-            password: this.$('#password').val()
+            password: this.$('#password').val(),
         };
-        var loginModel = new LoginModel();
-        loginModel.save(loginDetails, {
-            success: function(model, response) {
-                if (response.status) {
-                    // Login was successful
-                    console.log('Logged in:', response.data);
-                    // Redirect to a new page or change the view
-                } else {
-                    // Login failed
-                    console.error('Login failed:', response.message);
-                }
+
+        $.ajax({
+            url: 'http://localhost/toonflix/api/auth/signin',
+            type: 'POST',
+            data: userData,
+            success: function(response) {
+                console.log('Login Successful', response);
+                console.log('UserData',userData);
+                window.location.href = 'file:///C:/xampp/htdocs/ToonFlix/frontend/html/dashboard.html';
             },
-            error: function(model, response) {
-                console.error('An error occurred:', response);
+            error: function(error) {
+                console.log('Login Failed', error);
+            }
+        });
+    },
+
+    signUp: function(e) {
+        e.preventDefault();
+
+        var userData = {
+            username: this.$('#new-username').val(),
+            password: this.$('#new-password').val(),
+            email: this.$('#email').val(),
+        };
+        console.log("usetData",userData);
+        $.ajax({
+            url: 'http://localhost/toonflix/api/auth/signup',
+            type: 'POST',
+            data: userData,
+            success: function(response) {
+                console.log('Sign Up Successful', response);
+                // Optionally log in the user directly or show a success message
+                alert("Registration successful. Please log in.");
+                $('#signup-form').hide();
+                $('#login-form').show();
+                $('#toggle-form').text("Don't have an account? Sign Up");
+            },
+            error: function(error) {
+                console.log('Sign Up Failed', error);
             }
         });
     }
 });
+
+var authView = new AuthView();
