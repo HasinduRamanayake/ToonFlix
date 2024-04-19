@@ -13,6 +13,9 @@ class UserController extends REST_Controller
 
     public function __construct()
     {
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
+        header("Access-Control-Allow-Headers: Content-Type, Content-Length, Accept-Encoding,Authorization");
         parent::__construct(); 
         $this->load->library('session');    
         $this->load->library('doctrine');   
@@ -28,22 +31,24 @@ class UserController extends REST_Controller
 
         // Validate credentials
         $user = $this->userRepository->login($username, $password);
+        
         if (!$user) {
             $this->response(['status' => false, 'message' => 'Invalid username or password'], REST_Controller::HTTP_UNAUTHORIZED);
         } else {
                     
             // $userId = $this->session->flashdata('user_id');
-            // $username = $this->session->flashdata('username');
-
-           
+            // $username = $this->session->flashdata('username');           
            
             $data = [
                 'userId' => $user->getId(),
                 'username' => $user->getUsername(),
             ];
-            $this->session->set_userdata('user_id', $user->getId());
-            $this->session->set_userdata('username', $user->getUsername());
+            // $this->session->set_userdata('user_id', $user->getId());
+            // $this->session->set_userdata('username', $user->getUsername());
+            $token_data['user_id'] = $data['userId'];
+            $token_data['username'] = $username;
 
+            $tokenData = $this->authorization_token->generateToken($token_data);
            
             $this->response([
                 'status' => true, 
@@ -51,8 +56,16 @@ class UserController extends REST_Controller
                 'data' => $data,
                 'redirect' => '/dashboard'
             ], REST_Controller::HTTP_OK);
+            return $this->sendJson(array("token" => $tokenData, "status" => true, "response" => "Login Success!"));
         }
     }
+
+    private function sendJson($data)
+    {
+        $this->output->set_header('Content-Type: application/json; charset=utf-8')->set_output(json_encode($data));
+    }
+
+
     public function index_get()
     {
         $this->load->helper('url');

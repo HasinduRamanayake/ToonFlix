@@ -70,7 +70,7 @@ class PostController extends REST_Controller {
                 $this->response(['message' => $user], REST_Controller::HTTP_NOT_FOUND);
                 return;
             }
-
+            //----------> ADD Followings to the Repository 
             // Creating and setting properties for the new Post entity
             $post = new Entity\Post();
             $post->setTitle($this->input->post('title'));
