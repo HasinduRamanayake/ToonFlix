@@ -2,7 +2,7 @@
 namespace Entity\Repository;
 
 use Doctrine\ORM\EntityRepository;
-use Entity\User; // assuming your User entity is in the Entity namespace
+use Entity\User; 
 
 class UserRepository extends EntityRepository
 {

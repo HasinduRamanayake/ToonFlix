@@ -18,9 +18,9 @@ class Post
     private $id;
 
     /**
-     * @ORM\Column(type="string")
-     **/
-    private $image_path;
+     * @ORM\Column(type="blob", nullable=true)
+     */
+    private $image_data;
 
 
     /**
@@ -36,7 +36,7 @@ class Post
     /**
      * Many Posts have One User.
      * @ORM\ManyToOne(targetEntity="User", inversedBy="posts")
-     * @ORM\JoinColumn(name="post_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      **/
     private $user;
 
@@ -55,14 +55,14 @@ class Post
         return $this->id;
     }
 
-    public function setImagePath($image_path)
+    public function setImageData($image_data)
     {
-        $this->image_path = $image_path;
+        $this->image_data = $image_data;
     }
 
-    public function getImagePath()
+    public function getImageData()
     {
-        return $this->image_path;
+        return $this->image_data;
     }
 
     public function setTitle($title)

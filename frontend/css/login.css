@@ -1,7 +1,7 @@
 /* Base styles for body, ensuring full height and centering content */
 body {
     font-family: Arial, sans-serif;
-    background-image: url('../../assets/Login/cbg2.jpg'); /* Replace with your actual background image URL */
+    background-image: url('../../assets/Login/cbg2.webp'); /* Replace with your actual background image URL */
     background-size: cover;
     background-position: center;
     display: flex;

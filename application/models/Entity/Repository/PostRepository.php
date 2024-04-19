@@ -5,30 +5,31 @@ use Entity\Post;
 
 class PostRepository extends EntityRepository
 {
-    public function createPost($title, $imagePath){
+    public function createPost($title, $imageData){
 
         $userId = $this->session->userdata('user_id');
-        if (!$userId) {
-            // Handle not logged in error
+        if (!$userId) {            
             return;
         }
     
         $user = $this->entityManager->find('Entity\User', $userId);
-        if (!$user) {
-            // Handle user not found error
-           
+        if (!$user) {           
             return;
         }
     
         $post = new Post();
         $post->setTitle($title);
-        $post->setImagePath($imagePath);
-        $post->setUser($user); // Associate the post with the retrieved user entity
+        $post->setImageData($imagePath);
+        $post->setUser($user); 
     
         $this->entityManager->persist($post);
-        $this->entityManager->flush();
-    
-        // Handle success response
+        $this->entityManager->flush(); 
+        
+    }
+
+    public function findAllPosts()
+    {
+        return $this->findBy(array(), array('id' => 'ASC'));
     }
 }
 

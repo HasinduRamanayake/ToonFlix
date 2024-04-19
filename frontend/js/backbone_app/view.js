@@ -13,11 +13,12 @@ var AuthView = Backbone.View.extend({
         };
 
         $.ajax({
-            url: 'http://localhost/toonflix/api/auth/login',
+            url: 'http://localhost/toonflix/api/auth/signin',
             type: 'POST',
             data: userData,
             success: function(response) {
                 console.log('Login Successful', response);
+                console.log('UserData',userData);
                 window.location.href = 'file:///C:/xampp/htdocs/ToonFlix/frontend/html/dashboard.html';
             },
             error: function(error) {
