@@ -15,78 +15,81 @@ class PostController extends REST_Controller {
         $this->load->library('session');
         $this->load->library('doctrine');
     
-        $this->entityManager = $this->doctrine->em;        
+        $this->entityManager = $this->doctrine->em;   
+        $this->postRepository = $this->entityManager->getRepository('Entity\Post');     
     }
 
-    public function getAllPosts_get()
-    {
-        //accessing the repository
-        $posts = $this->entityManager->getRepository('Entity\Post')->findAll();
+    public function getAllPosts_get() {
+        // Assuming 'PostRepository' has a method 'findAllPosts' that returns all posts
+        $posts = $this->postRepository->findAllPosts();
+    
         $postData = array();
     
         foreach ($posts as $post) {
-            $blob = $post->getImageData();
-            // Convert blob to base64 for JSON serialization
-            $base64 = base64_encode(stream_get_contents($blob)); 
             $postData[] = array(
                 'id' => $post->getId(),
                 'title' => $post->getTitle(),
                 'genre' => $post->getGenre(),
-                'imageData' => 'data:image/jpeg;base64,' . $base64
+                'imagePath' => base_url('uploads/' . $post->getImagePath()),
             );
         }
     
-        $this->response($postData, REST_Controller::HTTP_OK);
+        // Check if we got any posts
+        if (empty($postData)) {
+            // No posts found
+            $this->response(['message' => 'No posts found'], REST_Controller::HTTP_NOT_FOUND);
+        } else {
+            // Send the response with the posts data
+            $this->response($postData, REST_Controller::HTTP_OK);
+        }
     }
     
-     
-
+    
+ 
     public function createPost_post() {
-        // Configure upload.
+        // Configure upload path.
         $config['upload_path'] = './uploads/';
         $config['allowed_types'] = 'gif|jpg|png';
+    
+        $this->load->helper('string');
+        // Generate a random UUID filename for each upload image using alphanumeric string
+        $config['file_name'] = random_string('alnum', 32); 
+    
         $this->load->library('upload', $config);
 
+        
         if (!$this->upload->do_upload('image')) {
-            // Upload failed.
+            
             $error = array('error' => $this->upload->display_errors());
             $this->response($error, REST_Controller::HTTP_BAD_REQUEST);
-        } else {
-            // Upload succeeded.
-            $data = $this->upload->data();
-            $fileContent = file_get_contents($data['full_path']);
 
-            $userId = $this->session->userdata('user_id');
-            $username = $this->session->userdata('username');
+        } else {
             
+            $data = $this->upload->data();
+            $uploadedFileName = $data['file_name']; 
+    
+            $userId = $this->session->userdata('user_id');
             if (!$userId) {
-                $this->response(['message' => $userId], REST_Controller::HTTP_FORBIDDEN);
+                $this->response(['message' => 'User not logged in'], REST_Controller::HTTP_FORBIDDEN);
                 return;
             }
-            
-            // Find the user entity
+    
+            // Finding the user entity or abort if not found
             $user = $this->entityManager->find('Entity\User', $userId);
             if (!$user) {
-                $this->response(['message' => $user], REST_Controller::HTTP_NOT_FOUND);
+                $this->response(['message' => 'User not found'], REST_Controller::HTTP_NOT_FOUND);
                 return;
-            }
+            }   
 
-            // Creating and setting properties for the new Post entity
-            $post = new Entity\Post();
-            $post->setTitle($this->input->post('title'));
-            $post->setGenre('Anime');
-            $post->setImageData($fileContent);
-            $post->setUser($user); 
-
-            // Use EntityManager to persist the new Post entity
-            $this->entityManager->persist($post);
-            $this->entityManager->flush();
+            $res = $this->postRepository->createPost($this->input->post('title'),'8753475',$uploadedFileName,$user,$this->input->post('genre'),$this->input->post('description'));
             
-            unlink($data['full_path']);
-
             $this->response(['message' => 'Image uploaded and post saved successfully.'], REST_Controller::HTTP_OK);
         }
     }
+    
+    
+ 
+    
 
     public function updatePost_post($postId)
     {

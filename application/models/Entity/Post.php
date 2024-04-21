@@ -18,10 +18,9 @@ class Post
     private $id;
 
     /**
-     * @ORM\Column(type="blob", nullable=true)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $image_data;
-
+    private $image_path;
 
     /**
      * @ORM\Column(type="string")
@@ -34,11 +33,26 @@ class Post
     private $genre;
 
     /**
+     * @ORM\Column(type="string")
+     **/
+    private $tag;
+
+    /**
+     * @ORM\Column(type="string")
+     **/
+    private $description;
+
+    /**
      * Many Posts have One User.
      * @ORM\ManyToOne(targetEntity="User", inversedBy="posts")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      **/
     private $user;
+
+    /**
+     * @ORM\Column(type="datetime")
+     **/
+    private $created_at;
 
     // Getter and setter for user
     public function getUser() {
@@ -55,14 +69,14 @@ class Post
         return $this->id;
     }
 
-    public function setImageData($image_data)
+    public function setImagePath($image_path)
     {
-        $this->image_data = $image_data;
+        $this->image_path = $image_path;
     }
 
-    public function getImageData()
+    public function getImagePath()
     {
-        return $this->image_data;
+        return $this->image_path;
     }
 
     public function setTitle($title)
@@ -75,6 +89,16 @@ class Post
         return $this->title;
     }
 
+    public function setTag($tag)
+    {
+        $this->tag = $tag;
+    }
+
+    public function getTag()
+    {
+        return $this->tag;
+    }
+
     public function setGenre($genre)
     {
         $this->genre = $genre;
@@ -83,6 +107,27 @@ class Post
     public function getGenre()
     {
         return $this->genre;
+    }
+    
+
+    public function getCreatedAt()
+    {
+        return $this->created_at;
+    }
+
+    public function setCreatedAt($time)
+    {
+        $this->created_at = $time;
+    }
+
+    public function setDescription($description)
+    {
+        $this->description = $description;
+    }
+
+    public function getDescription()
+    {
+        return $this->description;
     }
     
 }
