@@ -11,7 +11,7 @@ class UserRepository extends EntityRepository
         $user = $this->findByUsername($username);
        
         if ($user && ($password === $user->getPassword())) {
-            
+
             return $user;
         }
         
