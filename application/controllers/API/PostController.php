@@ -18,6 +18,7 @@ class PostController extends REST_Controller {
         $this->entityManager = $this->doctrine->em;   
         $this->postRepository = $this->entityManager->getRepository('Entity\Post');     
     }
+   
 
     public function getAllPosts_get() {
         // Assuming 'PostRepository' has a method 'findAllPosts' that returns all posts
@@ -35,15 +36,14 @@ class PostController extends REST_Controller {
         }
     
         // Check if we got any posts
-        if (empty($postData)) {
+        if (empty($postData)) { 
             // No posts found
             $this->response(['message' => 'No posts found'], REST_Controller::HTTP_NOT_FOUND);
         } else {
             // Send the response with the posts data
             $this->response($postData, REST_Controller::HTTP_OK);
         }
-    }
-    
+    }    
     
  
     public function createPost_post() {
@@ -88,7 +88,38 @@ class PostController extends REST_Controller {
     }
     
     
- 
+    public function getPost_get($postId){
+        if (!$postId) {
+            $this->response(['message' => 'This post does not exist'], REST_Controller::HTTP_BAD_REQUEST);
+            return;
+        }
+        $post = $this->postRepository->findPostById($postId);
+
+        if ($post) {
+            $postData = array(
+                'id' => $post->getId(),
+                'title' => $post->getTitle(),
+                'genre' => $post->getGenre(),
+                'description' => $post->getDescription(),
+                'tag' => $post->getTag(),
+                'image_path' => base_url('uploads/' . $post->getImagePath()),
+                // If the User entity has a getUsername() method
+                'username' => $post->getUser() ? $post->getUser()->getUsername() : null,
+            );
+    
+            $this->response([
+                'status' => 'success',
+                'data' => $postData
+            ], REST_Controller::HTTP_OK);
+       
+        } else {
+            $this->output
+                ->set_content_type('application/json')
+                ->set_status_header(404)
+                ->set_output(json_encode(['status' => 'error', 'message' => 'Post not found']));
+        }
+
+    }
     
 
     public function updatePost_post($postId)
@@ -103,8 +134,7 @@ class PostController extends REST_Controller {
         if (!$post) {
             $this->response(['message' => 'Post not found'], REST_Controller::HTTP_NOT_FOUND);
             return;
-        }
-    
+        }    
         // Get data from POST request
         $title = $this->input->post('title');
         $genre = $this->input->post('genre');
@@ -122,8 +152,16 @@ class PostController extends REST_Controller {
     
         $this->response(['message' => 'Post updated successfully.'], REST_Controller::HTTP_OK);
     }
+
+    // public function index_post()
+    // {
+    // $this->response(['message' => 'POST method not properly routed'], REST_Controller::HTTP_BAD_REQUEST);
+    // }
+
+    // public function index_get()
+    // {
+    //     $this->response(['message' => 'GET method not properly routed'], REST_Controller::HTTP_BAD_REQUEST);
+    // }
    
 }
-
-
 ?>

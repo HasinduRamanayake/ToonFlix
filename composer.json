@@ -18,6 +18,7 @@
     "require": {
         "doctrine/orm": "^2.18",
         "symfony/cache": "^6.0",
-        "doctrine/annotations": "^2.0"
+        "doctrine/annotations": "^2.0",
+        "symfony/dotenv": "^6.0"
     }
 }

@@ -59,7 +59,12 @@ $route['api/auth/signup']['post'] = 'Auth/signup_post';
 
 $route['api/posts/create_post'] = 'API/PostController/createPost';
 $route['api/posts/get_all_posts'] = 'API/PostController/getAllPosts';
-$route['api/posts/update/(:id)'] = 'api/postcontroller/updatePost_post/$1';
+$route['api/posts/(:num)'] = 'API/PostController/getPost/$1';
+$route['api/posts/update/(:id)'] = 'api/Postcontroller/updatePost/$1';
+
+$route['api/comments/create_comment']= 'API/CommentController/createComment';
+$route['api/comments/get_all_comments/(:num)'] = 'API/CommentController/getAllComments/$1';
+
 
 
 //test routes
