@@ -92,15 +92,59 @@ class CommentController extends REST_Controller
         }
      
     }   
-     public function index_post()
-    {
-    $this->response(['message' => 'POST method not properly routed'], REST_Controller::HTTP_BAD_REQUEST);
+
+
+    public function updateComment_put($commentId) {
+        if (!$commentId) {
+            $this->response([
+                'status' => FALSE,
+                'message' => 'Invalid comment ID'
+            ], REST_Controller::HTTP_BAD_REQUEST);
+            return;
+        }
+
+        $content = $this->put('content');
+
+        $res = $this->commentRepository->updateComment($commentId, $content);
+
+        if($res){
+
+            $this->response([
+                'status' => TRUE,
+                'message' => 'Comment updated successfully'
+            ], REST_Controller::HTTP_OK);
+        }else{
+            $this->response([
+                'status' => FALSE,
+                'message' => 'No content provided'
+            ], REST_Controller::HTTP_BAD_REQUEST);
+
+        }
+        // Fetch the comment from the database
+       
+    }
+   
+    public function deleteComment_delete($commentId) {
+        // Check for user session or token
+        $userId = $this->session->userdata('user_id');
+        if (!$userId) {
+            $this->response(['status' => FALSE, 'message' => 'User not logged in'], REST_Controller::HTTP_UNAUTHORIZED);
+            return;
+        }
+        $res = $this->commentRepository->deleteComment($commentId,$userId);
+
+        if($res){
+            $this->response(['status' => TRUE, 'message' => 'Comment deleted successfully'], REST_Controller::HTTP_OK);
+        }else{
+            $this->response(['status' => FALSE, 'message' => 'Unauthorized'], REST_Controller::HTTP_UNAUTHORIZED);
+
+        }
+      
     }
 
-    public function index_get()
-    {
-        $this->response(['message' => 'GET method not properly routed'], REST_Controller::HTTP_BAD_REQUEST);
-    }
+
+    
+    
 }
 
 ?>
