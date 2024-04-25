@@ -14,7 +14,7 @@ class User
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
+     * @ORM\Column(name="user_id",type="integer")
      **/
     protected $id;
 

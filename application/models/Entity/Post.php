@@ -45,7 +45,7 @@ class Post
     /**
      * Many Posts have One User.
      * @ORM\ManyToOne(targetEntity="User", inversedBy="posts")
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="user_id")
      **/
     private $user;
 
@@ -109,7 +109,6 @@ class Post
         return $this->genre;
     }
     
-
     public function getCreatedAt()
     {
         return $this->created_at;
@@ -129,5 +128,7 @@ class Post
     {
         return $this->description;
     }
+
+    
     
 }

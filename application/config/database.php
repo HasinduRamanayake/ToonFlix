@@ -75,10 +75,10 @@ $query_builder = TRUE;
 
 $db['default'] = array(
 	'dsn'	=> '',
-	'hostname' => 'localhost',
-	'username' => 'root',
-	'password' => '',
-	'database' => 'toonflix',
+	'hostname' => getenv('DB_HOST') ?: 'localhost',
+    'username' => getenv('DB_USERNAME') ?: 'root',
+    'password' => getenv('DB_PASSWORD') ?: '',
+    'database' => getenv('DB_DATABASE') ?: 'toonflix',
 	'dbdriver' => 'mysqli',
 	'dbprefix' => '',
 	'pconnect' => FALSE,
