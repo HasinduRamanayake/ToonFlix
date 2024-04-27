@@ -34,17 +34,15 @@ class CommentController extends REST_Controller
     
         foreach ($comments as $comment) {
             $commentData[] = array(
-                'id' => $comment['comment_id'], // Access the 'comment_id' key of the array
-                'content' => $comment['content'], // Access the 'content' key of the array
-                // Assuming 'user' is the array containing user information
+                'id' => $comment['comment_id'], 
+                'content' => $comment['content'],
                 'user' => array(
-                    'id' => $comment['user_id'], // Access the 'user_id' key of the array
-                    'username' => $comment['username'] // Access the 'username' key of the array
+                    'id' => $comment['user_id'], 
+                    'username' => $comment['username']
                 ),
-                // Add post data if needed
                 'post' => array(
-                    'id' => $comment['post_id'], // Access the 'post_id' key of the array
-                    'title' => $comment['title'] // Access the 'title' key of the array
+                    'id' => $comment['post_id'], 
+                    'title' => $comment['title']
                 ),
                 'created_at' => $comment['created_at']
             );

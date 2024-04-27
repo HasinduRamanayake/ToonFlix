@@ -54,24 +54,23 @@ $route['default_controller'] = 'welcome';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
 
-$route['api/auth/login']['post'] = 'Auth/index_post';
-$route['api/auth/signup']['post'] = 'Auth/signup_post';
+$route['api/auth/signin'] = 'API/UserController/signin';
+$route['api/auth/signup'] = 'API/UserController/signup';
 
 $route['api/posts/create_post'] = 'API/PostController/createPost';
 $route['api/posts/get_all_posts'] = 'API/PostController/getAllPosts';
-$route['api/posts/(:num)'] = 'API/PostController/getPost/$1';
-$route['api/posts/update/(:id)'] = 'api/Postcontroller/updatePost/$1';
+$route['api/posts/get_user_posts'] = 'API/PostController/getUserPosts';
+$route['api/posts/get_post/(:num)'] = 'API/PostController/getPost/$1';
+$route['api/posts/update_post/(:num)'] = 'API/PostController/updatePost/$1';
+$route['api/posts/delete_post/(:num)'] = 'API/PostController/deletePost/$1';
 
 $route['api/comments/create_comment']= 'API/CommentController/createComment';
 $route['api/comments/get_all_comments/(:num)'] = 'API/CommentController/getAllComments/$1';
 $route['api/comments/update_comment/(:num)'] = 'API/CommentController/updateComment/$1';
 $route['api/comments/delete_comment/(:num)'] = 'API/CommentController/deleteComment/$1';
 
-
-
-//test routes
-$route['api/auth/signin'] = 'API/UserController/index';
-$route['api/auth/low']['get'] = 'API/UserController/test_get';
+$route['api/posts/search_by_name'] = 'API/PostController/searchByName';
+$route['api/posts/search_by_tag'] = 'API/PostController/searchByTag';
 
 
 

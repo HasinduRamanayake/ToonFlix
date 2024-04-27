@@ -29,7 +29,7 @@ class Comment
     /**
      * Many Comments have One Post.
      * @ORM\ManyToOne(targetEntity="Post", inversedBy="comments")
-     * @ORM\JoinColumn(name="post_id", referencedColumnName="post_id")
+     * @ORM\JoinColumn(name="post_id", referencedColumnName="post_id", onDelete="CASCADE")
      */
     private $post;
 
