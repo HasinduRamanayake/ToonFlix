@@ -28,6 +28,10 @@ class User
      **/
     protected $password;
 
+    /**
+     * @ORM\Column(type="string")
+     **/
+    protected $email;
 
     /**
      * One User has Many Posts.
@@ -69,5 +73,13 @@ class User
 
     public function getPassword() {
         return $this->password;
+    }
+
+    public function setEmail($email) {
+        $this->email = $email;
+    }
+    
+    public function getEmail() {
+        return $this->email;
     }
 }

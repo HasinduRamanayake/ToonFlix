@@ -32,6 +32,7 @@ class PostController extends REST_Controller {
                 'title' => $post->getTitle(),
                 'genre' => $post->getGenre(),
                 'imagePath' => base_url('uploads/' . $post->getImagePath()),
+                'createdAt' => $post->getCreatedAt()
             );
         }
     
@@ -49,7 +50,7 @@ class PostController extends REST_Controller {
     public function createPost_post() {
         // Configure upload path.
         $config['upload_path'] = './uploads/';
-        $config['allowed_types'] = 'gif|jpg|png';
+        $config['allowed_types'] = 'gif|jpg|png|jpeg';
     
         $this->load->helper('string');
         // Generate a random UUID filename for each upload image using alphanumeric string
@@ -81,9 +82,38 @@ class PostController extends REST_Controller {
                 return;
             }   
 
-            $res = $this->postRepository->createPost($this->input->post('title'),'8753475',$uploadedFileName,$user,$this->input->post('genre'),$this->input->post('description'));
+            $tagsInput = $this->input->post('tags');
+            $tagNames = json_decode($tagsInput);
+
+            // If decoding failed, return an error response
+            if ($tagNames === null && json_last_error() !== JSON_ERROR_NONE) {
+                $this->response(['message' => 'Invalid tags format'], REST_Controller::HTTP_BAD_REQUEST);
+                return;
+            }
+            $tags = [];
             
-            $this->response(['message' => 'Image uploaded and post saved successfully.'], REST_Controller::HTTP_OK);
+            $this->entityManager->beginTransaction();
+            try {
+                foreach ($tagNames as $tagName) {
+                    $tag = $this->entityManager->getRepository('Entity\Tag')->findOneBy(['tagName' => $tagName]);
+        
+                    if (!$tag) {
+                        $tag = $this->entityManager->getRepository('Entity\Tag')->createTag($tagName);
+                    }
+                    $tags[] = $tag;
+                }
+        
+                $res = $this->postRepository->createPost($this->input->post('title'), $tags, $uploadedFileName, $user, $this->input->post('genre'), $this->input->post('description'));
+                $this->entityManager->flush();
+                $this->entityManager->commit();
+        
+                $this->response(['message' => 'Image uploaded and post saved successfully.'], REST_Controller::HTTP_OK);
+            } catch (Exception $e) {
+                $this->entityManager->rollback();
+                $this->response(['message' => 'Failed to create post: ' . $e->getMessage()], REST_Controller::HTTP_INTERNAL_SERVER_ERROR);
+            }
+          
+            
         }
     }
     
@@ -95,13 +125,19 @@ class PostController extends REST_Controller {
         }
         $post = $this->postRepository->findPostById($postId);
 
+
         if ($post) {
+            
+            $tags = [];
+            foreach ($post->getTags() as $tag) {
+                $tags[] = $tag->getTagName(); 
+            }
             $postData = array(
                 'id' => $post->getId(),
                 'title' => $post->getTitle(),
                 'genre' => $post->getGenre(),
                 'description' => $post->getDescription(),
-                'tag' => $post->getTag(),
+                'tag' => $tags,
                 'image_path' => base_url('uploads/' . $post->getImagePath()),
                 // If the User entity has a getUsername() method
                 'username' => $post->getUser() ? $post->getUser()->getUsername() : null,
@@ -121,47 +157,148 @@ class PostController extends REST_Controller {
 
     }
     
-
-    public function updatePost_post($postId)
-    {
+    public function updatePost_put($postId) {
         if (!$postId) {
-            $this->response(['message' => 'Invalid post ID'], REST_Controller::HTTP_BAD_REQUEST);
+            $this->response(null, REST_Controller::HTTP_BAD_REQUEST);
             return;
         }
     
-        // Retrieve the post entity by ID
-        $post = $this->entityManager->find('Entity\Post', $postId);
+        $post = $this->postRepository->findPostById($postId);
+    
         if (!$post) {
             $this->response(['message' => 'Post not found'], REST_Controller::HTTP_NOT_FOUND);
             return;
-        }    
-        // Get data from POST request
-        $title = $this->input->post('title');
-        $genre = $this->input->post('genre');
-    
-        // Optionally checking if the POST data is present
-        if (!empty($title)) {
-            $post->setTitle($title);
-        }
-        if (!empty($genre)) {
-            $post->setGenre($genre);
         }
     
-        // Use EntityManager to persist the updated Post entity
-        $this->entityManager->flush();
+        $title = $this->put('title');
+        $genre = $this->put('genre');
+        $description = $this->put('description');
+        $tagNames = $this->put('tags');
     
-        $this->response(['message' => 'Post updated successfully.'], REST_Controller::HTTP_OK);
+        try {
+            $this->postRepository->updatePost($post, $title, $description, $genre, $tagNames);
+            $this->response(['message' => 'Post updated successfully'], REST_Controller::HTTP_OK);
+        } catch (\InvalidArgumentException $e) {
+            $this->response(['message' => $e->getMessage()], REST_Controller::HTTP_BAD_REQUEST);
+        }
     }
 
-    // public function index_post()
-    // {
-    // $this->response(['message' => 'POST method not properly routed'], REST_Controller::HTTP_BAD_REQUEST);
-    // }
+    public function searchByTag_get() {
+        $tags = $this->input->get('tags');
+        $tagNames = explode(',', $tags);
+        $posts = $this->postRepository->findByTags($tagNames);
+    
+        if (empty($posts)) {
+            $this->response(['message' => 'No posts found for the given tags'], REST_Controller::HTTP_NOT_FOUND);
+        } else {
+            $formattedPosts = [];
+            foreach ($posts as $post) {
+                $formattedPosts[] = [
+                    'id' => $post->getId(),
+                    'title' => $post->getTitle(),
+                    'genre' => $post->getGenre(),
+                    'description' => $post->getDescription(),
+                    'image_path' => base_url('uploads/' . $post->getImagePath()),
+                    'username' => $post->getUser() ? $post->getUser()->getUsername() : 'Anonymous',
+                    'tags' => array_map(function ($tag) { return $tag->getTagName(); }, $post->getTags()->toArray())
+                ];
+            }
+            $this->response([
+                'status' => 'success',
+                'data' => $formattedPosts
+            ], REST_Controller::HTTP_OK);
+        }
+    }
+    
 
-    // public function index_get()
-    // {
-    //     $this->response(['message' => 'GET method not properly routed'], REST_Controller::HTTP_BAD_REQUEST);
-    // }
+
+    public function searchByName_get() {
+        $name = $this->input->get('name');
+
+        if (empty($name)) {
+            $this->response([
+                'status' => 'error',
+                'message' => 'Name parameter is required'
+            ], REST_Controller::HTTP_BAD_REQUEST);
+            return;
+        }
+
+        $posts = $this->postRepository->findPostsByName($name);
+        
+        $result = array_map(function ($post) {
+
+            $tags = [];
+            foreach ($post->getTags() as $tag) {
+                $tags[] = $tag->getTagName(); 
+            }
+            return [
+                'id' => $post->getId(),
+                'title' => $post->getTitle(),
+                'description' => $post->getDescription(),
+                'genre' => $post->getGenre(), 
+                'tags' => $tags,               
+                'image_path' => base_url('uploads/' . $post->getImagePath()),
+                'username' => $post->getUser() ? $post->getUser()->getUsername() : null,
+
+            ];
+        }, $posts);
+
+        $this->response([
+            'status' => 'success',
+            'data' => $result
+        ], REST_Controller::HTTP_OK);
+    }
+
+    public function getUserPosts_get() {
+        $userId = $this->session->userdata('user_id'); // or use a method to decode a JWT token
+    
+        if (!$userId) {
+            $this->response(['message' => 'User not logged in'], REST_Controller::HTTP_UNAUTHORIZED);
+            return;
+        }
+    
+        $posts = $this->postRepository->findByUserId($userId);
+        
+        if (empty($posts)) {
+            $this->response(['status' => 'error', 'message' => 'No posts found'], REST_Controller::HTTP_NOT_FOUND);
+        } else {
+            $formattedPosts = [];
+            foreach ($posts as $post) {
+                $formattedPosts[] = [
+                    'id' => $post->getId(),
+                    'title' => $post->getTitle(),
+                    'genre' => $post->getGenre(),
+                    'description' => $post->getDescription(),
+                    'image_path' => base_url('uploads/' . $post->getImagePath()),
+                    'username' => $post->getUser() ? $post->getUser()->getUsername() : 'Anonymous',
+                    'tags' => array_map(function ($tag) { return $tag->getTagName(); }, $post->getTags()->toArray())
+                ];
+            }
+            $this->response($formattedPosts, REST_Controller::HTTP_OK);
+    
+        }
+    }
+    public function deletePost_delete($postId) {
+        if (!$postId) {
+            $this->response(null, REST_Controller::HTTP_BAD_REQUEST);
+            return;
+        }
+    
+        $post = $this->postRepository->findPostById($postId);
+    
+        if (!$post) {
+            $this->response(['message' => 'Post not found'], REST_Controller::HTTP_NOT_FOUND);
+            return;
+        }
+    
+        try {
+            $this->postRepository->deletePost($post);
+            $this->response(['message' => 'Post deleted successfully'], REST_Controller::HTTP_OK);
+        } catch (Exception $e) {
+            $this->response(['message' => 'Failed to delete post: ' . $e->getMessage()], REST_Controller::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+    
    
 }
 ?>

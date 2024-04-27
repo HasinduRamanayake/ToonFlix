@@ -4,77 +4,89 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 require APPPATH . 'libraries/REST_Controller.php';
 require APPPATH . 'libraries/Format.php';
 
-
 class UserController extends REST_Controller
 {
     private $entityManager;
- 
     private $userRepository;
 
     public function __construct()
     {
-        parent::__construct(); 
-        $this->load->library('session');    
-        $this->load->library('doctrine');   
+        parent::__construct();
+        $this->load->library('session');
+        $this->load->library('doctrine');
+        
+        // Initialize Doctrine Entity Manager and User Repository
+        $this->entityManager = $this->doctrine->em;
+        $this->userRepository = $this->entityManager->getRepository('Entity\User');
     }
 
-    public function index_post()
+    public function signin_post()
     {
         $username = $this->post('username');
-        $password = $this->post('password');        
+        $password = $this->post('password');
 
-        $this->entityManager = $this->doctrine->em; 
-        $this->userRepository = $this->entityManager->getRepository('Entity\User'); 
-
-        // Validate credentials
         $user = $this->userRepository->login($username, $password);
         if (!$user) {
-            $this->response(['status' => false, 'message' => 'Invalid username or password'], REST_Controller::HTTP_UNAUTHORIZED);
+            $this->response([
+                'status' => false,
+                'message' => 'Invalid username or password'
+            ], REST_Controller::HTTP_UNAUTHORIZED);
         } else {
-                    
-            // $userId = $this->session->flashdata('user_id');
-            // $username = $this->session->flashdata('username');
+            $this->session->set_userdata([
+                'user_id' => $user->getId(),
+                'username' => $user->getUsername()
+            ]);
 
-           
-           
-            $data = [
-                'userId' => $user->getId(),
-                'username' => $user->getUsername(),
-            ];
-            $this->session->set_userdata('user_id', $user->getId());
-            $this->session->set_userdata('username', $user->getUsername());
-
-           
             $this->response([
                 'status' => true, 
-                'message' => 'Data retrieved successfully',
-                'data' => $data,
+                'message' => 'Login successful',
+                'data' => [
+                    'userId' => $user->getId(),
+                    'username' => $user->getUsername()
+                ],
                 'redirect' => '/dashboard'
             ], REST_Controller::HTTP_OK);
         }
     }
-    public function index_get()
+
+    public function signup_post()
     {
-        $this->load->helper('url');
-        
-       
-        $this->output
-             ->set_content_type('application/json')
-             ->set_status_header(200) // HTTP 200 OK
-             ->set_output(json_encode(array('message' => 'Server is up and running')));
-    }
-    public function test_get()
-    {
-        $this->load->helper('url');
-        
-        
-        $this->output
-             ->set_content_type('application/json')
-             ->set_status_header(200) // HTTP 200 OK
-             ->set_output(json_encode(array('message' => 'Server is up and running')));
+        $username = $this->post('username');
+        $password = $this->post('password');
+        $email = $this->post('email');
+
+        if (!$this->validateSignup($username, $password, $email)) {
+            $this->response([
+                'status' => false,
+                'message' => 'Validation failed'
+            ], REST_Controller::HTTP_BAD_REQUEST);
+            return;
+        }
+
+        $user = $this->userRepository->createUser($username, $password, $email);
+        if (!$user) {
+            $this->response([
+                'status' => false,
+                'message' => 'User registration failed'
+            ], REST_Controller::HTTP_INTERNAL_SERVER_ERROR);
+        } else {
+            $this->response([
+                'status' => true,
+                'message' => 'User registered successfully',
+                'data' => [
+                    'userId' => $user->getId(),
+                    'username' => $user->getUsername()
+                ]
+            ], REST_Controller::HTTP_CREATED);
+        }
     }
 
+    private function validateSignup($username, $password, $email)
+    {
+        // Basic validation logic
+        return !empty($username) && !empty($password) && filter_var($email, FILTER_VALIDATE_EMAIL);
+    }
     
+  
 }
-
 ?>
