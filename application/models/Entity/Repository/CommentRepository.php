@@ -52,10 +52,46 @@ class CommentRepository extends EntityRepository{
 
         $this->_em->persist($comment);
         $this->_em->flush();
-
-        return true;
     }
 
+    public function updateComment($commentId,$content){
+
+        $comment = $this->find($commentId);
+        if (!$comment) {
+            $this->response([
+                'status' => FALSE,
+                'message' => 'Comment not found'
+            ], REST_Controller::HTTP_NOT_FOUND);
+            return;
+        }
+
+        // Get the updated data from the PUT request
+        
+        if (!empty($content)) {
+            $comment->setContent($content);
+            $this->_em->flush();
+            return true;
+           
+        } else {
+           return;
+        }
+    }
+    public function deleteComment($commentId,$userId){
+        $comment = $this->find($commentId);
+        if ($comment) {
+            if ($comment->getUser()->getId() == $userId) {
+                // User is the owner of the comment
+                $this->_em->remove($comment);
+                $this->_em->flush();
+    
+                return true;
+            }
+        
+        } else {
+           return;
+        }
+
+    }
    
 
 }

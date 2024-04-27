@@ -64,6 +64,8 @@ $route['api/posts/update/(:id)'] = 'api/Postcontroller/updatePost/$1';
 
 $route['api/comments/create_comment']= 'API/CommentController/createComment';
 $route['api/comments/get_all_comments/(:num)'] = 'API/CommentController/getAllComments/$1';
+$route['api/comments/update_comment/(:num)'] = 'API/CommentController/updateComment/$1';
+$route['api/comments/delete_comment/(:num)'] = 'API/CommentController/deleteComment/$1';
 
 
 
