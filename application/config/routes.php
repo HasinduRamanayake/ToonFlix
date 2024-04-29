@@ -72,5 +72,11 @@ $route['api/comments/delete_comment/(:num)'] = 'API/CommentController/deleteComm
 $route['api/posts/search_by_name'] = 'API/PostController/searchByName';
 $route['api/posts/search_by_tag'] = 'API/PostController/searchByTag';
 
+$route['api/likes/add_like/(:num)'] = 'API/LikeController/addLike/$1';
+$route['api/likes/remove_like/(:num)'] = 'API/LikeController/removeLike/$1';
+
+// $route['api/likes/add_like/(:num)'] = 'API/LikeController/addLike/$1';
+$route['api/likes/remove_like/(:num)'] = 'API/LikeController/removeLike/$1';
+$route['api/likes/count/(:num)'] = 'API/LikeController/getLikeCount/$1';
 
 

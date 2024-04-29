@@ -63,12 +63,23 @@ class Post
      **/
     private $created_at;
 
+    /**
+     * @ORM\Column(type="integer", options={"default" : 0})
+     */
+    private $likeCount = 0;
+
+    /**
+     * One Post has Many Likes.
+     * @ORM\OneToMany(targetEntity="Like", mappedBy="post", cascade={"persist", "remove"})
+     */
+    private $likes;
+
 
 
     public function __construct() {
         $this->tags = new ArrayCollection();
+        $this->likes = new ArrayCollection();
     }
-
 
     public function getUser() {
         return $this->user;
@@ -156,6 +167,34 @@ class Post
 
     public function getTags() {
         return $this->tags;
+    }
+
+    public function getLikeCount(){
+        return $this->likeCount;
+    }
+
+    public function setLikeCount($likeCount){
+        $this->likeCount = $likeCount;
+    }
+
+
+
+    public function addLike(Like $like){
+        if (!$this->likes->contains($like)) {
+            $this->likes[] = $like;
+            $like->setPost($this);
+            $this->likeCount++;
+        }
+    }
+
+    public function removeLike(Like $like){
+        if ($this->likes->removeElement($like)) {
+            $this->likeCount--;
+        }
+    }
+
+    public function getLikes(){
+        return $this->likes;
     }
     
     
