@@ -17,10 +17,10 @@ class CommentRepository extends EntityRepository{
             'post.id AS post_id',
             'post.title'
         ]);
-        // Modify the select to include the user and post entities
+    
         $queryBuilder->from('Entity\Comment', 'comment')
-                     ->leftJoin('comment.user', 'user') // Assume the relation is configured in Comment entity
-                     ->leftJoin('comment.post', 'post') // Assume the relation is configured in Comment entity
+                     ->leftJoin('comment.user', 'user')
+                     ->leftJoin('comment.post', 'post')
                      ->where('comment.post = :postId')
                      ->setParameter('postId', $postId);
     
@@ -52,6 +52,9 @@ class CommentRepository extends EntityRepository{
 
         $this->_em->persist($comment);
         $this->_em->flush();
+
+        return true;
+
     }
 
     public function updateComment($commentId,$content){

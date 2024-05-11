@@ -132,14 +132,28 @@ class PostController extends REST_Controller {
             foreach ($post->getTags() as $tag) {
                 $tags[] = $tag->getTagName(); 
             }
+
+            $likesData = [];
+            $likes = $post->getLikes();
+
+            foreach ($likes as $like) {
+                $likeData = [
+                    'like_id' => $like->getId(), 
+                    'user_id' => $like->getUser() ? $like->getUser()->getId() : null,
+                    'username' => $like->getUser() ? $like->getUser()->getUsername() : null,                    
+                ];
+
+                $likesData[] = $likeData;
+            }
             $postData = array(
                 'id' => $post->getId(),
                 'title' => $post->getTitle(),
                 'genre' => $post->getGenre(),
                 'description' => $post->getDescription(),
                 'tag' => $tags,
+                'likes' => $likesData,
+                'likeCount' => $post->getLikeCount(),
                 'image_path' => base_url('uploads/' . $post->getImagePath()),
-                // If the User entity has a getUsername() method
                 'username' => $post->getUser() ? $post->getUser()->getUsername() : null,
             );
     
@@ -250,7 +264,7 @@ class PostController extends REST_Controller {
     }
 
     public function getUserPosts_get() {
-        $userId = $this->session->userdata('user_id'); // or use a method to decode a JWT token
+        $userId = $this->session->userdata('user_id'); 
     
         if (!$userId) {
             $this->response(['message' => 'User not logged in'], REST_Controller::HTTP_UNAUTHORIZED);
