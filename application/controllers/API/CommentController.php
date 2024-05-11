@@ -138,10 +138,7 @@ class CommentController extends REST_Controller
 
         }
       
-    }
-
-
-    
+    }    
     
 }
 

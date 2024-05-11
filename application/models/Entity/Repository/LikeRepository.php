@@ -46,7 +46,7 @@ public function removeLikeByPostAndUser($postId, $userId)
     ]);
 
     if (!$like) {
-        // No like found for this user and post combination
+       
         return false;
     }
 
