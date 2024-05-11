@@ -74,9 +74,6 @@ $route['api/posts/search_by_tag'] = 'API/PostController/searchByTag';
 
 $route['api/likes/add_like/(:num)'] = 'API/LikeController/addLike/$1';
 $route['api/likes/remove_like/(:num)'] = 'API/LikeController/removeLike/$1';
-
-// $route['api/likes/add_like/(:num)'] = 'API/LikeController/addLike/$1';
-$route['api/likes/remove_like/(:num)'] = 'API/LikeController/removeLike/$1';
 $route['api/likes/count/(:num)'] = 'API/LikeController/getLikeCount/$1';
 
 
