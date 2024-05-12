@@ -21,7 +21,7 @@ class PostController extends REST_Controller {
    
 
     public function getAllPosts_get() {
-        // Assuming 'PostRepository' has a method 'findAllPosts' that returns all posts
+        
         $posts = $this->postRepository->findAllPosts();
     
         $postData = array();
@@ -31,17 +31,19 @@ class PostController extends REST_Controller {
                 'id' => $post->getId(),
                 'title' => $post->getTitle(),
                 'genre' => $post->getGenre(),
+                'likeCount' => $post->getLikeCount(),
+                'username' => $post->getUser() ? $post->getUser()->getUsername() : null,
                 'imagePath' => base_url('uploads/' . $post->getImagePath()),
                 'createdAt' => $post->getCreatedAt()
             );
         }
     
-        // Check if we got any posts
+        // Checking for any posts
         if (empty($postData)) { 
-            // No posts found
+            
             $this->response(['message' => 'No posts found'], REST_Controller::HTTP_NOT_FOUND);
         } else {
-            // Send the response with the posts data
+            // Sending the response with the posts data
             $this->response($postData, REST_Controller::HTTP_OK);
         }
     }    
