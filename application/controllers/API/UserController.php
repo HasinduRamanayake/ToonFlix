@@ -80,6 +80,25 @@ class UserController extends REST_Controller
             ], REST_Controller::HTTP_CREATED);
         }
     }
+    
+    public function signout_post()
+    {
+        // Destroy the session data
+        $this->session->sess_destroy();
+
+        $this->response([
+            'status' => true,
+            'message' => 'Sign out successful',
+            'redirect' => '/signin'
+        ], REST_Controller::HTTP_OK);
+    }
+
+    public function validateSession_get()
+    {
+        $response = ['status' => $this->session->userdata('user_id') ? true : false];
+        $this->response($response, $response['status'] ? REST_Controller::HTTP_OK : REST_Controller::HTTP_UNAUTHORIZED);
+    }
+
 
     private function validateSignup($username, $password, $email)
     {

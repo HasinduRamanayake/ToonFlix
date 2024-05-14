@@ -56,6 +56,9 @@ $route['translate_uri_dashes'] = FALSE;
 
 $route['api/auth/signin'] = 'API/UserController/signin';
 $route['api/auth/signup'] = 'API/UserController/signup';
+$route['api/auth/signout'] = 'API/UserController/signout';
+$route['api/auth/session_validity'] = 'API/UserController/validateSession';
+
 
 $route['api/posts/create_post'] = 'API/PostController/createPost';
 $route['api/posts/get_all_posts'] = 'API/PostController/getAllPosts';
