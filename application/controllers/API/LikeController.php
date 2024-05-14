@@ -34,7 +34,7 @@ class LikeController extends REST_Controller {
 
     public function addLike_post($postId){
 
-        $userId = $this->session->userdata('user_id'); // Assume user ID is stored in session
+        $userId = $this->session->userdata('user_id'); //user_id from the session
 
         if (!$userId) {
             $this->response(['message' => 'User not logged in'], REST_Controller::HTTP_UNAUTHORIZED);
