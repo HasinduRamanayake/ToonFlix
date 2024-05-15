@@ -23,10 +23,10 @@ class PostRepository extends EntityRepository
     
 
     public function updatePost($post, $title, $description, $genre, $tagNamesJson) {
-        
         if (!$post) {
             throw new \InvalidArgumentException("No post provided for update.");
         }
+    
         log_message('error',"Received title: " . $title);
         if ($title) {
             $post->setTitle($title);
@@ -37,21 +37,22 @@ class PostRepository extends EntityRepository
         if ($description) {
             $post->setDescription($description);
         }    
-        $tagNames = json_decode($tagNamesJson, true);
-        log_message('error',"Received tag names JSON: " . $tagNamesJson);
-
+    
+        // Decode the JSON string if it's not already an array
+        $tagNames = is_string($tagNamesJson) ? json_decode($tagNamesJson, true) : $tagNamesJson;
+        log_message('error',"Received tag names JSON: " . print_r($tagNames, true));
+    
         if (json_last_error() !== JSON_ERROR_NONE) {
             error_log("JSON decoding error: " . json_last_error_msg());
             throw new \InvalidArgumentException("Invalid tags format: " . json_last_error_msg());
         }
-        $currentTags = $post->getTags();
     
+        $currentTags = $post->getTags();
         
         foreach ($currentTags as $tag) {
             $post->removeTag($tag);
         }
     
-        
         foreach ($tagNames as $tagName) {
             $tag = $this->_em->getRepository('Entity\Tag')->findOneBy(['tagName' => $tagName]);
     

@@ -38,12 +38,12 @@ class PostController extends REST_Controller {
             );
         }
     
-        // Checking for any posts
+        
         if (empty($postData)) { 
             
             $this->response(['message' => 'No posts found'], REST_Controller::HTTP_NOT_FOUND);
         } else {
-            // Sending the response with the posts data
+            // Sending the response
             $this->response($postData, REST_Controller::HTTP_OK);
         }
     }    
@@ -120,34 +120,41 @@ class PostController extends REST_Controller {
     }
     
     
-    public function getPost_get($postId){
+    public function getPost_get($postId) {
         if (!$postId) {
             $this->response(['message' => 'This post does not exist'], REST_Controller::HTTP_BAD_REQUEST);
             return;
         }
         $post = $this->postRepository->findPostById($postId);
-
-
+    
         if ($post) {
-            
             $tags = [];
             foreach ($post->getTags() as $tag) {
                 $tags[] = $tag->getTagName(); 
             }
-
+    
             $likesData = [];
             $likes = $post->getLikes();
-
             foreach ($likes as $like) {
                 $likeData = [
                     'like_id' => $like->getId(), 
                     'user_id' => $like->getUser() ? $like->getUser()->getId() : null,
                     'username' => $like->getUser() ? $like->getUser()->getUsername() : null,                    
                 ];
-
                 $likesData[] = $likeData;
+            }    
+            
+            $followersData = [];
+            if ($post->getUser()) {
+                foreach ($post->getUser()->getFollowers() as $follower) {
+                    $followersData[] = [
+                        'id' => $follower->getId(),
+                        'username' => $follower->getUsername()
+                    ];
+                }
             }
-            $postData = array(
+
+            $postData = [
                 'id' => $post->getId(),
                 'title' => $post->getTitle(),
                 'genre' => $post->getGenre(),
@@ -157,20 +164,20 @@ class PostController extends REST_Controller {
                 'likeCount' => $post->getLikeCount(),
                 'image_path' => base_url('uploads/' . $post->getImagePath()),
                 'username' => $post->getUser() ? $post->getUser()->getUsername() : null,
-            );
+                'user_id' => $post->getUser() ? $post->getUser()->getId() : null,
+                'followers' => $followersData
+            ];
     
             $this->response([
                 'status' => 'success',
                 'data' => $postData
             ], REST_Controller::HTTP_OK);
-       
         } else {
             $this->output
                 ->set_content_type('application/json')
                 ->set_status_header(404)
                 ->set_output(json_encode(['status' => 'error', 'message' => 'Post not found']));
         }
-
     }
     
     public function updatePost_put($postId) {
@@ -191,6 +198,11 @@ class PostController extends REST_Controller {
         $description = $this->put('description');
         $tagNames = $this->put('tags');
     
+        // Ensure that $tagNames is a JSON string
+        if (is_array($tagNames)) {
+            $tagNames = json_encode($tagNames);
+        }
+    
         try {
             $this->postRepository->updatePost($post, $title, $description, $genre, $tagNames);
             $this->response(['message' => 'Post updated successfully'], REST_Controller::HTTP_OK);
@@ -198,6 +210,7 @@ class PostController extends REST_Controller {
             $this->response(['message' => $e->getMessage()], REST_Controller::HTTP_BAD_REQUEST);
         }
     }
+    
 
     public function searchByTag_get() {
         $tags = $this->input->get('tags');
@@ -315,6 +328,5 @@ class PostController extends REST_Controller {
         }
     }
     
-   
 }
 ?>

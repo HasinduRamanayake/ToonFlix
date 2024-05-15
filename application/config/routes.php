@@ -59,6 +59,8 @@ $route['api/auth/signup'] = 'API/UserController/signup';
 $route['api/auth/signout'] = 'API/UserController/signout';
 $route['api/auth/session_validity'] = 'API/UserController/validateSession';
 
+$route['api/user/follow/(:num)/(:num)'] = 'API/UserController/followUser/$1/$2';
+$route['api/user/unfollow/(:num)/(:num)'] = 'API/UserController/unfollowUser/$1/$2';
 
 $route['api/posts/create_post'] = 'API/PostController/createPost';
 $route['api/posts/get_all_posts'] = 'API/PostController/getAllPosts';

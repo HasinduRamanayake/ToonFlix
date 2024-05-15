@@ -22,12 +22,12 @@ class CommentController extends REST_Controller
 
 
     public function getAllComments_get($postId) {
-        // Validate that postId is provided
+        // Validating that postId is provided
         if (!$postId) {
             $this->response(['message' => 'Post ID is required'], REST_Controller::HTTP_BAD_REQUEST);
             return;
         }
-    
+        //gtting all the comments
         $comments = $this->commentRepository->getAllComments($postId);
     
         $commentData = array();
@@ -47,7 +47,7 @@ class CommentController extends REST_Controller
                 'created_at' => $comment['created_at']
             );
         }
-    
+        //response with comment Data
         $this->response($commentData, REST_Controller::HTTP_OK);
     }
     
@@ -118,7 +118,6 @@ class CommentController extends REST_Controller
             ], REST_Controller::HTTP_BAD_REQUEST);
 
         }
-        // Fetch the comment from the database
        
     }
    
