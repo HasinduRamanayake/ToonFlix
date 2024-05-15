@@ -15,13 +15,14 @@ class PostController extends REST_Controller {
         $this->load->library('session');
         $this->load->library('doctrine');
     
+        // Initializing Doctrine Entity Manager and Post Repository
         $this->entityManager = $this->doctrine->em;   
         $this->postRepository = $this->entityManager->getRepository('Entity\Post');     
     }
    
 
     public function getAllPosts_get() {
-        
+        //calling to the reposity function to retrive all posts
         $posts = $this->postRepository->findAllPosts();
     
         $postData = array();
@@ -55,7 +56,7 @@ class PostController extends REST_Controller {
         $config['allowed_types'] = 'gif|jpg|png|jpeg';
     
         $this->load->helper('string');
-        // Generate a random UUID filename for each upload image using alphanumeric string
+        // Generating a random Hash filename for each upload image using alphanumeric string
         $config['file_name'] = random_string('alnum', 32); 
     
         $this->load->library('upload', $config);
@@ -185,9 +186,9 @@ class PostController extends REST_Controller {
             $this->response(null, REST_Controller::HTTP_BAD_REQUEST);
             return;
         }
-    
+        
         $post = $this->postRepository->findPostById($postId);
-    
+        //If a post is not in the database, following error would validate it
         if (!$post) {
             $this->response(['message' => 'Post not found'], REST_Controller::HTTP_NOT_FOUND);
             return;
@@ -198,7 +199,7 @@ class PostController extends REST_Controller {
         $description = $this->put('description');
         $tagNames = $this->put('tags');
     
-        // Ensure that $tagNames is a JSON string
+        // Ensuring that $tagNames is a JSON string
         if (is_array($tagNames)) {
             $tagNames = json_encode($tagNames);
         }
@@ -216,10 +217,11 @@ class PostController extends REST_Controller {
         $tags = $this->input->get('tags');
         $tagNames = explode(',', $tags);
         $posts = $this->postRepository->findByTags($tagNames);
-    
+        //validating the retrived posts
         if (empty($posts)) {
             $this->response(['message' => 'No posts found for the given tags'], REST_Controller::HTTP_NOT_FOUND);
         } else {
+            //formatting them as in necessary beforehand to make a response
             $formattedPosts = [];
             foreach ($posts as $post) {
                 $formattedPosts[] = [
@@ -254,33 +256,39 @@ class PostController extends REST_Controller {
 
         $posts = $this->postRepository->findPostsByName($name);
         
-        $result = array_map(function ($post) {
+        if (empty($posts)) {
+            $this->response(['message' => 'No posts found for the given name'], REST_Controller::HTTP_NOT_FOUND);
+        } else {
+            //remapping the contents as necessary
+            $result = array_map(function ($post) {
+                
+                $tags = [];
+                foreach ($post->getTags() as $tag) {
+                    $tags[] = $tag->getTagName(); 
+                }
+                return [
+                    'id' => $post->getId(),
+                    'title' => $post->getTitle(),
+                    'description' => $post->getDescription(),
+                    'genre' => $post->getGenre(), 
+                    'tags' => $tags,               
+                    'image_path' => base_url('uploads/' . $post->getImagePath()),
+                    'username' => $post->getUser() ? $post->getUser()->getUsername() : null,
 
-            $tags = [];
-            foreach ($post->getTags() as $tag) {
-                $tags[] = $tag->getTagName(); 
-            }
-            return [
-                'id' => $post->getId(),
-                'title' => $post->getTitle(),
-                'description' => $post->getDescription(),
-                'genre' => $post->getGenre(), 
-                'tags' => $tags,               
-                'image_path' => base_url('uploads/' . $post->getImagePath()),
-                'username' => $post->getUser() ? $post->getUser()->getUsername() : null,
+                ];
+            }, $posts);
 
-            ];
-        }, $posts);
-
-        $this->response([
-            'status' => 'success',
-            'data' => $result
-        ], REST_Controller::HTTP_OK);
+            $this->response([
+                'status' => 'success',
+                'data' => $result
+            ], REST_Controller::HTTP_OK);
+        }
     }
-
-    public function getUserPosts_get() {
-        $userId = $this->session->userdata('user_id'); 
     
+    public function getUserPosts_get() {
+        //gett current user's userId from the session
+        $userId = $this->session->userdata('user_id'); 
+        
         if (!$userId) {
             $this->response(['message' => 'User not logged in'], REST_Controller::HTTP_UNAUTHORIZED);
             return;
@@ -307,6 +315,7 @@ class PostController extends REST_Controller {
     
         }
     }
+
     public function deletePost_delete($postId) {
         if (!$postId) {
             $this->response(null, REST_Controller::HTTP_BAD_REQUEST);

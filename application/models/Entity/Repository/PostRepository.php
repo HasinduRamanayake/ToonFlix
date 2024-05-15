@@ -38,7 +38,7 @@ class PostRepository extends EntityRepository
             $post->setDescription($description);
         }    
     
-        // Decode the JSON string if it's not already an array
+        // Decoding the JSon String
         $tagNames = is_string($tagNamesJson) ? json_decode($tagNamesJson, true) : $tagNamesJson;
         log_message('error',"Received tag names JSON: " . print_r($tagNames, true));
     

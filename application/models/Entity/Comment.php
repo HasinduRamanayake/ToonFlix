@@ -41,12 +41,12 @@ class Comment
      */
     private $user;
 
-     // Getter and setter for user
+     // Getter and setter for user operations
     public function getContent() {
         return $this->content;
     }
 
-    public function setContent($content) { // Correct the parameter name
+    public function setContent($content) { 
         $this->content = $content;
     }
 
@@ -72,7 +72,6 @@ class Comment
         $this->created_at = $time;
     }
 
-    // Getter and setter for user
     public function getPost() {
         return $this->post;
     }

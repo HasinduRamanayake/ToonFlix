@@ -6,7 +6,8 @@ use Entity\Comment;
 class CommentRepository extends EntityRepository{
 
 
-    public function getAllComments($postId, ?array $orderBy = null, $limit = null, $offset = null) {
+    public function getAllComments($postId) {
+        //creating the query builder from the entity maanger
         $queryBuilder = $this->_em->createQueryBuilder();
         $queryBuilder->select([
             'comment.id AS comment_id',
@@ -24,19 +25,7 @@ class CommentRepository extends EntityRepository{
                      ->where('comment.post = :postId')
                      ->setParameter('postId', $postId);
     
-        if ($orderBy) {
-            foreach ($orderBy as $field => $order) {
-                $queryBuilder->addOrderBy("comment.$field", $order);
-            }
-        }
-    
-        if ($limit !== null) {
-            $queryBuilder->setMaxResults($limit);
-        }
-    
-        if ($offset !== null) {
-            $queryBuilder->setFirstResult($offset);
-        }
+        
     
         return $queryBuilder->getQuery()->getResult();
     }
@@ -62,7 +51,7 @@ class CommentRepository extends EntityRepository{
         }
     
         $comment = $this->_em->find('Entity\Comment', $commentId);
-    
+        //If Comment is not found
         if (!$comment) {
             throw new \InvalidArgumentException("No comment found for ID " . $commentId);
         }
@@ -77,6 +66,7 @@ class CommentRepository extends EntityRepository{
     public function deleteComment($commentId,$userId){
         $comment = $this->find($commentId);
         if ($comment) {
+            //checking if only the current logged user is request to delete the comment
             if ($comment->getUser()->getId() == $userId) {
                 
                 $this->_em->remove($comment);

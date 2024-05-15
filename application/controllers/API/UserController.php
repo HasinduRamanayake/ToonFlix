@@ -14,12 +14,11 @@ class UserController extends REST_Controller
         parent::__construct();
         $this->load->library('session');
         $this->load->library('doctrine');
-        
-        // Initialize Doctrine Entity Manager and User Repository
+    
         $this->entityManager = $this->doctrine->em;
         $this->userRepository = $this->entityManager->getRepository('Entity\User');
     }
-
+    //User SignIn
     public function signin_post()
     {
         $username = $this->post('username');
@@ -43,12 +42,11 @@ class UserController extends REST_Controller
                 'data' => [
                     'userId' => $user->getId(),
                     'username' => $user->getUsername()
-                ],
-                'redirect' => '/dashboard'
+                ]
             ], REST_Controller::HTTP_OK);
         }
     }
-
+    //User Signup
     public function signup_post()
     {
         $username = $this->post('username');
@@ -80,7 +78,7 @@ class UserController extends REST_Controller
             ], REST_Controller::HTTP_CREATED);
         }
     }
-
+    //Usr SignOut
     public function signout_post()
     {
         // Destroy the session data
@@ -101,7 +99,6 @@ class UserController extends REST_Controller
 
     private function validateSignup($username, $password, $email)
     {
-        // Basic validation logic
         return !empty($username) && !empty($password) && filter_var($email, FILTER_VALIDATE_EMAIL);
     }
 
