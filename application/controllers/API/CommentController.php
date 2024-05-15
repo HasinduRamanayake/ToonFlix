@@ -70,7 +70,7 @@ class CommentController extends REST_Controller
             return;
         }
 
-        // Finding the user entity or abort if not found
+        // Finding the current user
         $user = $this->entityManager->find('Entity\User', $userId);
         if (!$user) {
             $this->response(['message' => 'User not found'], REST_Controller::HTTP_NOT_FOUND);

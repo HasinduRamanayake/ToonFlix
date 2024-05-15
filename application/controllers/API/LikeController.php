@@ -17,9 +17,6 @@ class LikeController extends REST_Controller {
     }
 
     
-
-   
-
     public function getLikeCount_get($postId)
     {
         $post = $this->postRepository->find($postId);

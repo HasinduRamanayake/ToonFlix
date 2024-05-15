@@ -59,18 +59,16 @@ class User
         $this->followers = new ArrayCollection();
     }
 
-    // Getter for posts
+   // Getters and setters
     public function getPosts() {
         return $this->posts;
     }
 
-    // Add a post to the user
+    
     public function addPost($post) {
         $this->posts[] = $post;
     }
-
-
-    // Getters and setters
+    
     public function getId() {
         return $this->id;
     }

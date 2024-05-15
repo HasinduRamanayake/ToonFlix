@@ -61,14 +61,14 @@ class Tag
     public function addPost(Post $post) {
         if (!$this->posts->contains($post)) {
             $this->posts[] = $post;
-            $post->addTag($this); // Ensure the other side of the relationship is updated
+            $post->addTag($this); 
         }
     }
 
     public function removePost(Post $post) {
         if ($this->posts->contains($post)) {
             $this->posts->removeElement($post);
-            $post->removeTag($this); // Ensure the other side of the relationship is updated
+            $post->removeTag($this);
         }
     }
    

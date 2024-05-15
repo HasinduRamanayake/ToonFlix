@@ -14,7 +14,7 @@ class LikeRepository extends EntityRepository
             return 'post_or_user_not_found';
         }
 
-        // Check if the like already exists
+        // Checking if the like already exists
         $existingLike = $this->_em->getRepository('Entity\Like')
                                 ->findOneBy(['post' => $post, 'user' => $user]);
         if ($existingLike) {
@@ -36,11 +36,8 @@ class LikeRepository extends EntityRepository
     
     public function removeLikeByPostAndUser($postId, $userId)
     {
-        // Fetch the EntityManager
-        $em = $this->getEntityManager();
-
-        // Try to find the like based on postId and userId
-        $like = $em->getRepository('Entity\Like')->findOneBy([
+                
+        $like = $this->_em->getRepository('Entity\Like')->findOneBy([
             'post' => $postId,
             'user' => $userId
         ]);
@@ -61,13 +58,11 @@ class LikeRepository extends EntityRepository
         
             $post->removeLike($like);
             
-            $em->remove($like);
-            $em->flush();
+            $this->_em->remove($like);
+            $this->_em->flush();
             
-            // Successfully removed the like
             return true;
         } catch (\Exception $e) {
-            // Log exception details here to investigate if necessary
             error_log("Failed to remove like: " . $e->getMessage());
             return false;
         }
