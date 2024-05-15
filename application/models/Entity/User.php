@@ -39,8 +39,24 @@ class User
      **/
     private $posts;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="User", inversedBy="followers")
+     * @ORM\JoinTable(name="follows",
+     *      joinColumns={@ORM\JoinColumn(name="follower_id", referencedColumnName="user_id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="followed_id", referencedColumnName="user_id")}
+     * )
+     */
+    private $following;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="User", mappedBy="following")
+     */
+    private $followers;
+
     public function __construct() {
         $this->posts = new ArrayCollection();
+        $this->following = new ArrayCollection();
+        $this->followers = new ArrayCollection();
     }
 
     // Getter for posts
@@ -82,4 +98,46 @@ class User
     public function getEmail() {
         return $this->email;
     }
+
+    public function getFollowing() {
+        return $this->following;
+    }
+
+    public function addFollowing(User $user) {
+        if (!$this->following->contains($user)) {
+            $this->following->add($user);
+        }
+    }
+
+    public function removeFollowing(User $user) {
+        if ($this->following->contains($user)) {
+            $this->following->removeElement($user);
+        }
+    }
+
+    public function getFollowers() {
+        return $this->followers;
+    }
+
+    public function addFollower(User $user) {
+        if (!$this->followers->contains($user)) {
+            $this->followers->add($user);
+        }
+    }
+
+    public function removeFollower(User $user) {
+        if ($this->followers->contains($user)) {
+            $this->followers->removeElement($user);
+        }
+    }
+    
+    public function getFollowingCount() {
+        return $this->following->count();
+    }
+
+    
+    public function getFollowersCount() {
+        return $this->followers->count();
+    }
 }
+

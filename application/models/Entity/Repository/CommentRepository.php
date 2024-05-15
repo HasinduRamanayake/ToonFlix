@@ -38,7 +38,6 @@ class CommentRepository extends EntityRepository{
             $queryBuilder->setFirstResult($offset);
         }
     
-        // Use getResult to fetch the joined results
         return $queryBuilder->getQuery()->getResult();
     }
 
@@ -57,33 +56,29 @@ class CommentRepository extends EntityRepository{
 
     }
 
-    public function updateComment($commentId,$content){
-
-        $comment = $this->find($commentId);
+    public function updateComment($commentId, $content) {
+        if (empty($content)) {
+            return false;
+        }
+    
+        $comment = $this->_em->find('Entity\Comment', $commentId);
+    
         if (!$comment) {
-            $this->response([
-                'status' => FALSE,
-                'message' => 'Comment not found'
-            ], REST_Controller::HTTP_NOT_FOUND);
-            return;
+            throw new \InvalidArgumentException("No comment found for ID " . $commentId);
         }
-
-        // Get the updated data from the PUT request
-        
-        if (!empty($content)) {
-            $comment->setContent($content);
-            $this->_em->flush();
-            return true;
-           
-        } else {
-           return;
-        }
+    
+        $comment->setContent($content);
+        $this->_em->flush();
+    
+        return true;
     }
+
+
     public function deleteComment($commentId,$userId){
         $comment = $this->find($commentId);
         if ($comment) {
             if ($comment->getUser()->getId() == $userId) {
-                // User is the owner of the comment
+                
                 $this->_em->remove($comment);
                 $this->_em->flush();
     

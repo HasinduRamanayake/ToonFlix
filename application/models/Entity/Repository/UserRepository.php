@@ -18,34 +18,65 @@ class UserRepository extends EntityRepository
         $user = $this->findByUsername($username);
        
         if ($user && password_verify($password, $user->getPassword())) {
-            // Password matches
+           
             return $user;
         }
 
-        // Password does not match or user not found
         return null;
     }
     
     public function createUser($username, $password, $email)
     {
-        // Check if user already exists
+        // Checking if user already exists
         if ($this->findByUsername($username)) {
             throw new \Exception("User already exists with the username: $username");
         }
 
-        // Create new User instance
+        // Creating new User instance
         $user = new User();
         $user->setUsername($username);
-        $user->setPassword(password_hash($password, PASSWORD_DEFAULT)); // Hash the password before storing it
+        $user->setPassword(password_hash($password, PASSWORD_DEFAULT)); //Hashing the password
         $user->setEmail($email);
 
-        // Persist the new user
         $entityManager = $this->getEntityManager();
         $entityManager->persist($user);
         $entityManager->flush();
 
         return $user;
     }
+
+    public function followUser($followerId, $followedId)
+    {
+        $follower = $this->find($followerId);
+        $followed = $this->find($followedId);
+
+        if ($follower && $followed) {
+            $follower->addFollowing($followed);
+            $entityManager = $this->getEntityManager();
+            $entityManager->persist($follower);
+            $entityManager->flush();
+            return ['status' => 'success'];
+        } else {
+            return ['status' => 'fail', 'message' => 'User not found'];
+        }
+    }
+
+    public function unfollowUser($followerId, $followedId)
+    {
+        $follower = $this->find($followerId);
+        $followed = $this->find($followedId);
+
+        if ($follower && $followed) {
+            $follower->removeFollowing($followed);
+            $entityManager = $this->getEntityManager();
+            $entityManager->persist($follower);
+            $entityManager->flush();
+            return ['status' => 'success'];
+        } else {
+            return ['status' => 'fail', 'message' => 'User not found'];
+        }
+    }
+
 
 
 }

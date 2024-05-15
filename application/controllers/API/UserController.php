@@ -80,7 +80,7 @@ class UserController extends REST_Controller
             ], REST_Controller::HTTP_CREATED);
         }
     }
-    
+
     public function signout_post()
     {
         // Destroy the session data
@@ -88,8 +88,7 @@ class UserController extends REST_Controller
 
         $this->response([
             'status' => true,
-            'message' => 'Sign out successful',
-            'redirect' => '/signin'
+            'message' => 'Sign out successful'
         ], REST_Controller::HTTP_OK);
     }
 
@@ -104,6 +103,28 @@ class UserController extends REST_Controller
     {
         // Basic validation logic
         return !empty($username) && !empty($password) && filter_var($email, FILTER_VALIDATE_EMAIL);
+    }
+
+    public function followUser_post($followerId, $followedId)
+    {
+        $result = $this->userRepository->followUser($followerId, $followedId);
+
+        if ($result['status'] === 'success') {
+            $this->response(['status' => 'success'], REST_Controller::HTTP_OK);
+        } else {
+            $this->response(['status' => 'fail', 'message' => $result['message']], REST_Controller::HTTP_NOT_FOUND);
+        }
+    }
+
+    public function unfollowUser_post($followerId, $followedId)
+    {
+        $result = $this->userRepository->unfollowUser($followerId, $followedId);
+
+        if ($result['status'] === 'success') {
+            $this->response(['status' => 'success'], REST_Controller::HTTP_OK);
+        } else {
+            $this->response(['status' => 'fail', 'message' => $result['message']], REST_Controller::HTTP_NOT_FOUND);
+        }
     }
     
   
